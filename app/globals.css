@@ -1,0 +1,452 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================
+   CSS Custom Properties
+   ======================== */
+:root {
+  /* Light theme */
+  --bg-app: #dde3ef;
+  --bg-calendar: #ffffff;
+  --bg-paper: #fafaf8;
+  --text-primary: #1a1a2e;
+  --text-secondary: #5a6178;
+  --text-muted: #9aa0b5;
+  --border-color: rgba(0, 0, 0, 0.07);
+  --shadow-calendar: 0 32px 80px -10px rgba(0,0,0,0.26), 0 8px 24px -4px rgba(0,0,0,0.1);
+  --shadow-section: 0 2px 12px rgba(0,0,0,0.05);
+  --accent: #4a52e4;
+  --accent-light: #e0eaff;
+  --range-bg: #eaf0fd;
+  --range-border: rgba(74, 82, 228, 0.14);
+  --day-hover: #f0f4ff;
+  --today-ring: #6272f1;
+  --weekend: #e03030;
+  --holiday-dot: #f59e0b;
+  --notes-line: rgba(0,0,0,0.055);
+  --binding-bg: linear-gradient(180deg, #252740 0%, #16172a 100%);
+  --binding-coil-border: #42456a;
+  --binding-coil-bg: linear-gradient(180deg, #565a90 0%, #383b68 50%, #282b56 100%);
+  --hook-pin-bg: linear-gradient(180deg, #888bb8 0%, #585b8a 100%);
+}
+
+.dark {
+  --bg-app: #0c0d1a;
+  --bg-calendar: #111226;
+  --bg-paper: #161730;
+  --text-primary: #eaeeff;
+  --text-secondary: #8b90be;
+  --text-muted: #454872;
+  --border-color: rgba(255, 255, 255, 0.055);
+  --shadow-calendar: 0 32px 80px -10px rgba(0,0,0,0.72), 0 8px 24px -4px rgba(0,0,0,0.48);
+  --shadow-section: 0 2px 12px rgba(0,0,0,0.28);
+  --accent: #6272f1;
+  --accent-light: #1c1f4a;
+  --range-bg: #1c1f4a;
+  --range-border: rgba(98, 114, 241, 0.18);
+  --day-hover: #17183a;
+  --today-ring: #7a8cf8;
+  --weekend: #f87171;
+  --holiday-dot: #fbbf24;
+  --notes-line: rgba(255,255,255,0.048);
+  --binding-bg: linear-gradient(180deg, #0c0d1a 0%, #080910 100%);
+  --binding-coil-border: #2e316a;
+  --binding-coil-bg: linear-gradient(180deg, #3a3e70 0%, #282b56 50%, #1e2048 100%);
+  --hook-pin-bg: linear-gradient(180deg, #5a5d8a 0%, #3a3d62 100%);
+}
+
+/* ========================
+   Base Resets
+   ======================== */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  transition: background-color 0.35s ease, color 0.35s ease;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ========================
+   Calendar Card
+   ======================== */
+.calendar-container {
+  perspective: 1400px;
+}
+
+.calendar-card {
+  background: var(--bg-calendar);
+  box-shadow: var(--shadow-calendar);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: box-shadow 0.35s ease;
+}
+
+/* ========================
+   Spiral Binding
+   ======================== */
+.calendar-binding {
+  background: var(--binding-bg);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 4px;
+  gap: 3px;
+}
+
+.binding-coil {
+  width: 26px;
+  height: 20px;
+  border: 2.5px solid var(--binding-coil-border);
+  border-radius: 50% 50% 46% 46% / 60% 60% 40% 40%;
+  background: var(--binding-coil-bg);
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.12), 0 2px 5px rgba(0,0,0,0.5);
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.35s ease;
+}
+
+.binding-coil::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 55%;
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+}
+
+.hook-pin {
+  width: 11px;
+  height: 30px;
+  background: var(--hook-pin-bg);
+  border-radius: 0 0 50% 50%;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.55);
+  position: absolute;
+  top: 0;
+  transition: background 0.35s ease;
+}
+
+/* ========================
+   Hero Section
+   ======================== */
+.hero-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.04) 0%,
+    rgba(0,0,0,0.08) 35%,
+    rgba(0,0,0,0.58) 100%
+  );
+}
+
+/* ========================
+   Day Grid Cells
+   ======================== */
+.day-cell {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+  min-width: 0;
+  min-height: 0;
+  outline: none;
+}
+
+/* Hover (idle) */
+.day-cell:hover:not(.day-empty):not(.day-selected):not(.day-in-range):not(.day-range-start):not(.day-range-end) {
+  background: var(--day-hover);
+  transform: scale(1.09);
+  box-shadow: 0 4px 14px rgba(98, 114, 241, 0.22);
+}
+
+/* Focus ring */
+.day-cell:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Today */
+.day-cell.day-today:not(.day-selected):not(.day-range-start):not(.day-range-end) {
+  box-shadow: 0 0 0 2px var(--today-ring);
+}
+
+/* Selected single / endpoints */
+.day-cell.day-selected,
+.day-cell.day-range-start,
+.day-cell.day-range-end {
+  background: var(--accent) !important;
+  color: white !important;
+  box-shadow: 0 4px 14px rgba(98, 114, 241, 0.42) !important;
+  transform: scale(1.06);
+  z-index: 2;
+}
+
+/* Range start — left-rounded pill */
+.day-cell.day-range-start {
+  border-radius: 10px 0 0 10px !important;
+}
+
+/* Range end — right-rounded pill */
+.day-cell.day-range-end {
+  border-radius: 0 10px 10px 0 !important;
+}
+
+/* Single-day selection — fully rounded */
+.day-cell.day-range-start.day-range-end {
+  border-radius: 10px !important;
+}
+
+/* In range */
+.day-cell.day-in-range {
+  background: var(--range-bg) !important;
+  border-radius: 0 !important;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Hover preview */
+.day-cell.day-hover-preview {
+  background: var(--accent-light) !important;
+  border-radius: 0;
+  transform: none;
+}
+.day-cell.day-hover-start {
+  background: var(--accent) !important;
+  color: white !important;
+  border-radius: 10px 0 0 10px !important;
+  transform: scale(1.04);
+  z-index: 2;
+}
+.day-cell.day-hover-end {
+  background: var(--accent) !important;
+  color: white !important;
+  border-radius: 0 10px 10px 0 !important;
+  transform: scale(1.04);
+  z-index: 2;
+}
+.day-cell.day-hover-single {
+  background: var(--accent) !important;
+  color: white !important;
+  border-radius: 10px !important;
+  transform: scale(1.04);
+  z-index: 2;
+}
+
+/* Weekend text color */
+.day-cell.day-weekend:not(.day-selected):not(.day-range-start):not(.day-range-end):not(.day-hover-start):not(.day-hover-end) .day-number {
+  color: var(--weekend);
+}
+
+/* ========================
+   Holiday Dot
+   ======================== */
+.holiday-dot {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3.5px;
+  height: 3.5px;
+  border-radius: 50%;
+  background: var(--holiday-dot);
+  pointer-events: none;
+}
+
+/* Holiday Tooltip */
+.holiday-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a2e;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.holiday-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #1a1a2e;
+}
+.dark .holiday-tooltip {
+  background: #e8eaff;
+  color: #1a1a2e;
+}
+.dark .holiday-tooltip::after {
+  border-top-color: #e8eaff;
+}
+.day-cell:hover .holiday-tooltip,
+.day-cell:focus-visible .holiday-tooltip {
+  opacity: 1;
+}
+
+/* ========================
+   Notes Section
+   ======================== */
+.notes-textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  line-height: 1.75;
+  min-height: 80px;
+}
+.notes-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* Ruled lines */
+.ruled-lines > div {
+  height: 1px;
+  background: var(--notes-line);
+  margin-top: 28px;
+}
+
+/* ========================
+   Navigation Buttons
+   ======================== */
+.nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-color);
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.nav-btn:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: 0 4px 14px rgba(74, 82, 228, 0.32);
+  transform: scale(1.1);
+}
+.nav-btn:active { transform: scale(0.94); }
+
+/* ========================
+   Theme Toggle (fixed)
+   ======================== */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 60;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  background: rgba(30,30,60,0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e8eaff;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+.theme-toggle:hover {
+  background: rgba(74, 82, 228, 0.65);
+  border-color: rgba(98,114,241,0.6);
+  transform: rotate(18deg) scale(1.1);
+}
+.theme-toggle:active { transform: scale(0.94); }
+
+/* ========================
+   Paper Texture (Notes)
+   ======================== */
+.paper-texture {
+  background-color: var(--bg-paper);
+  background-image: radial-gradient(rgba(0,0,0,0.012) 1px, transparent 1px);
+  background-size: 22px 22px;
+  transition: background-color 0.35s ease;
+}
+
+/* ========================
+   Divider
+   ======================== */
+.divider {
+  height: 1px;
+  background: var(--border-color);
+  width: 100%;
+}
+
+/* ========================
+   Scrollbar
+   ======================== */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+/* ========================
+   Mobile Overrides
+   ======================== */
+@media (max-width: 640px) {
+  .calendar-card { border-radius: 14px; }
+  .binding-coil { width: 18px; height: 14px; }
+  .day-cell { border-radius: 8px; }
+  .day-cell.day-in-range { border-radius: 0 !important; }
+  .day-cell.day-range-start { border-radius: 8px 0 0 8px !important; }
+  .day-cell.day-range-end { border-radius: 0 8px 8px 0 !important; }
+  .day-cell.day-range-start.day-range-end { border-radius: 8px !important; }
+  .day-cell.day-hover-start { border-radius: 8px 0 0 8px !important; }
+  .day-cell.day-hover-end { border-radius: 0 8px 8px 0 !important; }
+  .day-cell.day-hover-single { border-radius: 8px !important; }
+  .theme-toggle { top: 14px; right: 14px; width: 36px; height: 36px; }
+}
+
+/* ========================
+   Print / Reduce Motion
+   ======================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
