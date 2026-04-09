@@ -2,6 +2,8 @@
 
 A **production-quality, frontend-only Interactive Wall Calendar** built with **Next.js 14 (App Router), React 18, TypeScript, and Tailwind CSS**. Submitted as a frontend engineering challenge response.
 
+**[🌟 View Live Demo on Vercel](https://celender-beta.vercel.app)**
+
 ---
 
 ## 🚀 Quick Start
